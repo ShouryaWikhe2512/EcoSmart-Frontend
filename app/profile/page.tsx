@@ -1,177 +1,302 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import {
-  LogOut,
   User,
   Mail,
-  Shield,
-  Leaf,
-  Recycle,
-  MapPin,
-  Activity,
   Calendar,
+  MapPin,
+  Phone,
+  Edit,
+  Settings,
+  LogOut,
+  Coins,
+  Recycle,
+  Award,
+  AlertCircle,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 
-interface UserData {
-  email: string;
-  name: string;
-  picture: string;
+interface WalletData {
+  id: string;
+  user_id: string;
+  balance: number;
+  created_at: string;
+  updated_at: string;
+  total_earned: number;
+  total_spent: number;
 }
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
+  const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      setUser(JSON.parse(userData));
-    }
-    setLoading(false);
-  }, []);
+  // Mock user ID - in a real app, this would come from authentication
+  const userId = "user_123";
 
-  const handleLogout = () => {
-    localStorage.removeItem("user");
-    localStorage.removeItem("login_message");
-    router.push("/login");
+  // Mock user data - in a real app, this would come from the user profile API
+  const userData = {
+    name: "John Doe",
+    email: "john.doe@example.com",
+    joinDate: "January 2023",
+    location: "New York, USA",
+    phone: "+1 (555) 123-4567",
+    avatar: "https://randomuser.me/api/portraits/men/32.jpg",
+    bio: "Passionate about environmental sustainability and waste management. Active participant in community recycling initiatives.",
+    stats: {
+      reportsSubmitted: 27,
+      wasteReported: "156 kg",
+      recyclingRate: "78%",
+    },
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#f8f8f8] to-[#e8f5e9] flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#2e7d32]"></div>
-      </div>
-    );
-  }
+  // Fetch wallet data
+  useEffect(() => {
+    const fetchWalletData = async () => {
+      setLoading(true);
+      setError(null);
 
-  if (!user) {
-    router.push("/login");
-    return null;
-  }
+      try {
+        const response = await fetch(`/api/digital-wallet/${userId}`);
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch wallet data: ${response.status}`);
+        }
+
+        const data = await response.json();
+        setWalletData(data);
+      } catch (err) {
+        console.error("Error fetching wallet data:", err);
+        setError("Failed to load wallet data. Please try again later.");
+
+        // For demo purposes, set mock data if API fails
+        setWalletData({
+          id: "wallet_123",
+          user_id: userId,
+          balance: 1500,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+          total_earned: 2500,
+          total_spent: 1000,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWalletData();
+  }, [userId]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#f8f8f8] to-[#e8f5e9] py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-[#e0e0e0]"
+          className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 border border-[#e0e0e0]"
         >
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-[#2e7d32] to-[#1b5e20] p-8 text-center relative">
-            <div className="absolute top-4 right-4">
-              <div className="flex items-center space-x-2">
-                <Leaf className="w-5 h-5 text-white/80 animate-pulse" />
-                <Recycle className="w-4 h-4 text-white/80 animate-spin-slow" />
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-8 mb-10">
+            <div className="relative">
+              <Image
+                src={userData.avatar}
+                alt={userData.name}
+                width={150}
+                height={150}
+                className="rounded-full border-4 border-white shadow-md"
+              />
+              <button className="absolute bottom-2 right-2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors">
+                <Edit className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+
+            <div className="flex-1 text-center md:text-left">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">
+                {userData.name}
+              </h1>
+              <p className="text-gray-600 mb-4">{userData.bio}</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="flex items-center text-gray-600 mb-1">
+                    <Mail className="w-4 h-4 mr-2" />
+                    <span>Email</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">
+                    {userData.email}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="flex items-center text-gray-600 mb-1">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span>Joined</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">
+                    {userData.joinDate}
+                  </span>
+                </div>
+
+                <div className="flex flex-col items-center md:items-start">
+                  <div className="flex items-center text-gray-600 mb-1">
+                    <MapPin className="w-4 h-4 mr-2" />
+                    <span>Location</span>
+                  </div>
+                  <span className="text-gray-800 font-medium">
+                    {userData.location}
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="relative w-32 h-32 mx-auto mb-4">
-              <img
-                src={user.picture}
-                alt={user.name}
-                className="rounded-full w-full h-full object-cover border-4 border-white shadow-lg"
-              />
+
+            <div className="flex flex-col gap-2">
+              <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <Edit className="w-4 h-4" />
+                Edit Profile
+              </button>
+
+              <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-50 transition-colors">
+                <Settings className="w-4 h-4" />
+                Settings
+              </button>
             </div>
-            <h1 className="text-2xl font-bold text-white mb-2">{user.name}</h1>
-            <p className="text-white/80">{user.email}</p>
           </div>
 
-          {/* Profile Content */}
-          <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Account Information */}
-              <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.2 }}
-                className="bg-[#f8f8f8] rounded-xl p-6"
-              >
-                <h2 className="text-xl font-semibold text-[#2e7d32] mb-4 flex items-center">
-                  <User className="w-5 h-5 mr-2" />
-                  Account Information
-                </h2>
-                <div className="space-y-4">
-                  <div className="flex items-center">
-                    <Mail className="w-5 h-5 text-[#2e7d32] mr-3" />
-                    <div>
-                      <p className="text-sm text-gray-500">Email</p>
-                      <p className="text-gray-800">{user.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center">
-                    <Shield className="w-5 h-5 text-[#2e7d32] mr-3" />
-                    <div>
-                      <p className="text-sm text-gray-500">Account Type</p>
-                      <p className="text-gray-800">Google Account</p>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Quick Actions */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 }}
-                className="bg-[#f8f8f8] rounded-xl p-6"
-              >
-                <h2 className="text-xl font-semibold text-[#2e7d32] mb-4">
-                  Quick Actions
-                </h2>
-                <div className="grid grid-cols-1 gap-4">
-                  <button
-                    onClick={() => router.push("/report")}
-                    className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <Activity className="w-5 h-5 text-[#2e7d32] mr-3" />
-                    <span className="text-[#2e7d32]">Report Waste</span>
-                  </button>
-                  <button
-                    onClick={() => router.push("/waste-deposits")}
-                    className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                  >
-                    <MapPin className="w-5 h-5 text-[#2e7d32] mr-3" />
-                    <span className="text-[#2e7d32]">View Waste Deposits</span>
-                  </button>
-                  {/* Authority Section */}
-                  <div className="mt-4 pt-4 border-t border-gray-200">
-                    <h3 className="text-lg font-semibold text-[#2e7d32] mb-3">
-                      Authority Actions
-                    </h3>
-                    <button
-                      onClick={() => router.push("/authority/pickups")}
-                      className="flex items-center p-4 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      <Calendar className="w-5 h-5 text-[#2e7d32] mr-3" />
-                      <span className="text-[#2e7d32]">
-                        Manage Waste Pickups
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
+          {/* Activity Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center">
+              <div className="bg-green-100 p-3 rounded-full mb-3">
+                <Recycle className="w-6 h-6 text-green-600" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 mb-1">
+                {userData.stats.reportsSubmitted}
+              </span>
+              <span className="text-gray-600">Reports Submitted</span>
             </div>
 
-            {/* Logout Button */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mt-8"
-            >
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center p-4 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors"
-              >
-                <LogOut className="w-5 h-5 mr-2" />
-                Logout
-              </button>
-            </motion.div>
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center">
+              <div className="bg-green-100 p-3 rounded-full mb-3">
+                <Recycle className="w-6 h-6 text-green-600" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 mb-1">
+                {userData.stats.wasteReported}
+              </span>
+              <span className="text-gray-600">Waste Reported</span>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 flex flex-col items-center">
+              <div className="bg-green-100 p-3 rounded-full mb-3">
+                <Award className="w-6 h-6 text-green-600" />
+              </div>
+              <span className="text-2xl font-bold text-gray-800 mb-1">
+                {userData.stats.recyclingRate}
+              </span>
+              <span className="text-gray-600">Recycling Rate</span>
+            </div>
+          </div>
+
+          {/* Digital Wallet Section */}
+          <div className="mb-10">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+              <Coins className="w-6 h-6 mr-2 text-green-500" />
+              Digital Wallet
+            </h2>
+
+            {error && (
+              <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {loading ? (
+              <div className="flex justify-center items-center p-12">
+                <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+              </div>
+            ) : walletData ? (
+              <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+                <div className="bg-gradient-to-r from-green-500 to-green-600 p-6 text-white">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-semibold">Eco-Coin Balance</h3>
+                    <Coins className="w-6 h-6" />
+                  </div>
+                  <div className="text-3xl font-bold mb-1">
+                    {walletData.balance}
+                  </div>
+                  <div className="text-green-100">Available Coins</div>
+                </div>
+
+                <div className="p-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-gray-500 text-sm mb-1">
+                        Total Earned
+                      </div>
+                      <div className="flex items-center">
+                        <Coins className="w-5 h-5 text-green-500 mr-2" />
+                        <span className="text-xl font-semibold text-gray-800">
+                          {walletData.total_earned}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <div className="text-gray-500 text-sm mb-1">
+                        Total Spent
+                      </div>
+                      <div className="flex items-center">
+                        <Coins className="w-5 h-5 text-green-500 mr-2" />
+                        <span className="text-xl font-semibold text-gray-800">
+                          {walletData.total_spent}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm text-gray-500 mb-4">
+                    <span>Wallet ID: {walletData.id}</span>
+                    <span>
+                      Last Updated:{" "}
+                      {new Date(walletData.updated_at).toLocaleDateString()}
+                    </span>
+                  </div>
+
+                  <Link
+                    href="/wallet"
+                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors w-full"
+                  >
+                    <Coins className="w-4 h-4" />
+                    Manage Wallet
+                    <ChevronRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="bg-gray-50 rounded-lg p-8 text-center">
+                <div className="text-gray-500 mb-4">No wallet data found</div>
+                <Link
+                  href="/wallet/create"
+                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg inline-flex items-center gap-2 transition-colors"
+                >
+                  <Coins className="w-4 h-4" />
+                  Create Wallet
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* Log Out Button */}
+          <div className="text-center mt-10">
+            <button className="text-gray-600 hover:text-gray-800 flex items-center gap-2 mx-auto">
+              <LogOut className="w-5 h-5" />
+              Log Out
+            </button>
           </div>
         </motion.div>
       </div>

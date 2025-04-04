@@ -19,6 +19,7 @@ import {
   Clipboard,
   CalendarClock,
   Loader2,
+  CheckCircle2,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -57,12 +58,16 @@ interface WasteReport {
   description_match_notes?: string;
   additional_data?: any;
   waste_type_confidences?: string;
+  image_url?: string;
 }
 
 interface WasteReportsResponse {
   count: number;
   results: WasteReport[];
 }
+
+// Keep the MOCK_WASTE_REPORTS as fallback data in case the API fails
+const MOCK_WASTE_REPORTS: WasteReport[] = [];
 
 export default function TicketsPage() {
   const router = useRouter();
@@ -97,6 +102,7 @@ export default function TicketsPage() {
       setLoading(true);
       setError(null);
 
+      // Build query parameters
       const queryParams = new URLSearchParams();
       queryParams.append("skip", skip.toString());
       queryParams.append("limit", limit.toString());
@@ -104,17 +110,120 @@ export default function TicketsPage() {
       if (status) queryParams.append("status", status);
       if (location) queryParams.append("location", location);
 
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/waste/reports?${queryParams.toString()}`
-      );
+      // API fetching logic with better error handling
+      let apiData = null;
+      let apiError = null;
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch waste reports");
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/api/waste/reports?${queryParams.toString()}`
+        );
+
+        if (response.ok) {
+          apiData = await response.json();
+        } else {
+          // Log the error but don't throw an exception
+          console.log(`API responded with status: ${response.status}`);
+          apiError = `API unavailable (${response.status})`;
+        }
+      } catch (error) {
+        // Network errors (CORS, connection refused, etc.)
+        console.log("Network error when fetching from API:", error);
+        apiError = "Network error";
       }
 
-      const data: WasteReportsResponse = await response.json();
-      setReports(data.results);
-      setTotalCount(data.count);
+      // Get localStorage reports regardless of API status
+      const localReports = JSON.parse(
+        localStorage.getItem("wasteReports") || "[]"
+      );
+
+      if (apiData) {
+        // API call was successful, merge with local reports
+        if (localReports.length > 0) {
+          // Only add local reports if not filtering
+          if (!severity && !status && !location) {
+            // Create a set of existing IDs to avoid duplicates
+            const existingIds = new Set(
+              apiData.results.map((report: WasteReport) => report._id)
+            );
+
+            // Add local reports that aren't already in the API results
+            const uniqueLocalReports = localReports.filter(
+              (report: WasteReport) => !existingIds.has(report._id)
+            );
+
+            // Update the data with combined results
+            apiData.results = [...uniqueLocalReports, ...apiData.results];
+            apiData.count += uniqueLocalReports.length;
+          }
+        }
+
+        setReports(apiData.results);
+        setTotalCount(apiData.count);
+      } else {
+        // API call failed, use localStorage or mock data
+        if (localReports.length > 0) {
+          // Filter the local reports based on the query parameters
+          let filteredReports = [...localReports];
+
+          if (severity) {
+            filteredReports = filteredReports.filter(
+              (report: WasteReport) =>
+                report.severity.toLowerCase() === severity.toLowerCase()
+            );
+          }
+
+          if (status) {
+            filteredReports = filteredReports.filter(
+              (report: WasteReport) =>
+                report.status.toLowerCase() === status.toLowerCase()
+            );
+          }
+
+          if (location) {
+            filteredReports = filteredReports.filter((report: WasteReport) =>
+              report.location.toLowerCase().includes(location.toLowerCase())
+            );
+          }
+
+          // Apply pagination
+          const paginatedReports = filteredReports.slice(skip, skip + limit);
+
+          setReports(paginatedReports);
+          setTotalCount(filteredReports.length);
+          setError(`Using locally saved reports. ${apiError}`);
+        } else {
+          // If no local reports, fallback to mock data
+          // Filter the mock data based on the query parameters
+          let filteredReports = [...MOCK_WASTE_REPORTS];
+
+          if (severity) {
+            filteredReports = filteredReports.filter(
+              (report) =>
+                report.severity.toLowerCase() === severity.toLowerCase()
+            );
+          }
+
+          if (status) {
+            filteredReports = filteredReports.filter(
+              (report) => report.status.toLowerCase() === status.toLowerCase()
+            );
+          }
+
+          if (location) {
+            filteredReports = filteredReports.filter((report: WasteReport) =>
+              report.location.toLowerCase().includes(location.toLowerCase())
+            );
+          }
+
+          // Apply pagination
+          const paginatedReports = filteredReports.slice(skip, skip + limit);
+
+          setReports(paginatedReports);
+          setTotalCount(filteredReports.length);
+          setError(`Using demo data. ${apiError}`);
+        }
+      }
     } catch (err) {
       setError("Failed to load waste reports. Please try again.");
       console.error(err);
@@ -175,6 +284,38 @@ export default function TicketsPage() {
       );
       setUpdatingStatus(null);
     }, 1500);
+  };
+
+  // Function to navigate to verify cleanup page
+  const handleVerifyCleanup = (reportId: string) => {
+    // First, remove any 'report_' prefix from the ID if it exists
+    const cleanedId = reportId.replace(/^report_/, "");
+
+    console.log(`Original report ID: ${reportId}`);
+    console.log(`Cleaned report ID: ${cleanedId}`);
+
+    // Ensure reportId is a valid MongoDB ObjectId (24-character hex string)
+    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(cleanedId);
+    console.log(
+      `Report ID is valid MongoDB ObjectId format: ${isValidObjectId}`
+    );
+
+    if (!isValidObjectId) {
+      alert(
+        "Invalid report ID format. The API requires a 24-character hex string (MongoDB ObjectId)."
+      );
+      return;
+    }
+
+    // Store in window object for a stateful approach without persisting in storage
+    if (typeof window !== "undefined") {
+      // @ts-ignore - we're adding a custom property
+      window.currentReportId = cleanedId;
+    }
+
+    // Navigate to verify cleanup page
+    console.log(`Navigating to verify cleanup page with report ID`);
+    router.push(`/verify-cleanup`);
   };
 
   const getSeverityColor = (severity: string) => {
@@ -481,7 +622,16 @@ export default function TicketsPage() {
 
                         <div className="flex justify-between items-center border-t border-[#e0e0e0] pt-4 mt-4">
                           <div className="text-gray-500 text-sm">
-                            ID: {report._id.substring(report._id.length - 8)}
+                            ID:{" "}
+                            {report._id.startsWith("report_")
+                              ? report._id
+                              : `report_${report._id}`}
+                            {report._id.startsWith("report_") && (
+                              <span className="ml-2 text-xs text-red-500">
+                                (Internal format, will be converted when
+                                verifying)
+                              </span>
+                            )}
                           </div>
                           <button
                             onClick={(e) => {
@@ -648,7 +798,7 @@ export default function TicketsPage() {
                               </div>
 
                               {/* Action Buttons */}
-                              <div className="flex gap-3 mt-6 pt-6 border-t border-[#e0e0e0]">
+                              <div className="flex flex-col md:flex-row gap-3 mt-6 pt-6 border-t border-[#e0e0e0]">
                                 <button
                                   onClick={() => handleUpdateStatus(report._id)}
                                   disabled={
@@ -673,6 +823,22 @@ export default function TicketsPage() {
                                     </>
                                   )}
                                 </button>
+
+                                <button
+                                  onClick={() =>
+                                    handleVerifyCleanup(report._id)
+                                  }
+                                  disabled={report.status === "resolved"}
+                                  className={`flex-1 py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-all ${
+                                    report.status === "resolved"
+                                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                      : "bg-[#1976d2] hover:bg-[#1565c0] text-white"
+                                  }`}
+                                >
+                                  <CheckCircle2 className="w-5 h-5" />
+                                  Verify Cleanup
+                                </button>
+
                                 <button className="flex-1 bg-[#f1f8e9] hover:bg-[#dcedc8] text-[#33691e] py-3 px-4 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors border border-[#c8e6c9]">
                                   <CalendarClock className="w-5 h-5" />
                                   Schedule Pickup
