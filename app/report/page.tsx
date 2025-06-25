@@ -291,6 +291,7 @@ export default function ReportPage() {
         }
 
         const data = await response.json();
+        console.log(data);
         setValidationResult(data);
       } catch (error) {
         // If API call fails, use mock validation result

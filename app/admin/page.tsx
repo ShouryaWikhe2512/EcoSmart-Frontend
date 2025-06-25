@@ -497,7 +497,7 @@ export default function AdminDashboard() {
                 <Calendar className="h-5 w-5" />
                 Scheduled Pickups
               </Link>
-              <Link
+              {/* <Link
                 href="#"
                 className="text-slate-700 hover:text-green-500 transition-colors py-2 flex items-center gap-3"
                 onClick={() => {
@@ -507,7 +507,7 @@ export default function AdminDashboard() {
               >
                 <Recycle className="h-5 w-5" />
                 Recyclable Returns
-              </Link>
+              </Link> */}
               <Link
                 href="#"
                 className="text-slate-700 hover:text-green-500 transition-colors py-2 flex items-center gap-3"
@@ -575,7 +575,7 @@ export default function AdminDashboard() {
               <Calendar className="h-5 w-5" />
               <span>Scheduled Pickups</span>
             </Link>
-
+            {/* 
             <Link
               href="#"
               className="flex items-center gap-3 px-4 py-3 text-slate-700 hover:text-green-500 transition-colors"
@@ -583,7 +583,7 @@ export default function AdminDashboard() {
             >
               <Recycle className="h-5 w-5" />
               <span>Recyclable Returns</span>
-            </Link>
+            </Link> */}
 
             <Link
               href="#"
@@ -670,7 +670,7 @@ export default function AdminDashboard() {
                     <UserCircle className="h-6 w-6" />
                   </div>
                   <span className="text-slate-700 font-medium hidden md:inline-block">
-                    Admin
+                    S.G.Wikhe
                   </span>
                   <ChevronDown className="h-4 w-4 text-slate-500" />
                 </button>
@@ -705,7 +705,7 @@ export default function AdminDashboard() {
           ) : (
             <>
               {/* Navigation Tabs */}
-              <div className="border-b border-slate-200 mb-8">
+              {/* <div className="border-b border-slate-200 mb-8">
                 <div className="flex overflow-x-auto hide-scrollbar">
                   <button
                     onClick={() => setActiveTab("overview")}
@@ -748,7 +748,7 @@ export default function AdminDashboard() {
                     Reports
                   </button>
                 </div>
-              </div>
+              </div> */}
 
               {/* Stats Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

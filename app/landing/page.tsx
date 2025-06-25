@@ -934,7 +934,6 @@ export default function Home() {
                   Extra Features
                 </h2>
 
-                {/* Add your extra features content here */}
                 <div className="text-center text-slate-600">
                   <p>Extra features content will be displayed here.</p>
                 </div>
@@ -962,17 +961,15 @@ export default function Home() {
         </section>
 
         {/* Features Section */}
-        <section
+        {/* <section
           className="py-16 bg-white relative overflow-hidden"
           data-scroll-section
         >
-          {/* Background gradient circles */}
           <div className="absolute top-10 left-1/4 w-60 h-60 bg-green-100 rounded-full opacity-40 filter blur-3xl"></div>
           <div className="absolute bottom-20 right-1/3 w-40 h-40 bg-teal-100 rounded-full opacity-50 filter blur-2xl"></div>
 
           <div className="container mx-auto px-4 relative z-10">
             <div className="grid md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
@@ -993,7 +990,6 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Feature 2 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
@@ -1014,7 +1010,6 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Feature 3 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
@@ -1035,7 +1030,6 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Feature 4 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
@@ -1056,7 +1050,6 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Feature 5 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
@@ -1077,14 +1070,13 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Feature 6 */}
               <div
                 className="p-6 bg-white/80 backdrop-blur-sm rounded-xl shadow-sm hover:shadow-md transition-shadow group"
                 data-scroll
                 data-scroll-speed="1"
                 data-scroll-delay="0.6"
               >
-                <div className="bg-teal-500 text-white p-4 rounded-lg inline-block mb-4 relative group-hover:shadow-lg transition-all">
+                <div className="bg-teal-500  text-white p-4 rounded-lg inline-block mb-4 relative group-hover:shadow-lg transition-all">
                   <div className="absolute -inset-1 bg-teal-300 rounded-full opacity-30 blur-md -z-10 group-hover:opacity-50 transition-opacity"></div>
                   <Calendar className="h-6 w-6" />
                 </div>
@@ -1099,7 +1091,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Booking Process Section */}
         <section
@@ -1122,9 +1114,9 @@ export default function Home() {
                 <div className="absolute -bottom-3 -right-3 w-16 h-16 bg-teal-300 rounded-full opacity-40 filter blur-xl"></div>
                 <div className="relative z-10">
                   <Image
-                    src="/placeholder.svg?height=400&width=600"
-                    width={600}
-                    height={400}
+                    src="/Screenshot 2025-04-05 023157.png"
+                    width={700}
+                    height={500}
                     alt="Waste management app interface"
                     className="rounded-lg"
                   />

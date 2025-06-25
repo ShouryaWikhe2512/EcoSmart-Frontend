@@ -20,6 +20,8 @@ import {
   AlertCircle,
   TrendingUp,
   RefreshCw,
+  Gift,
+  User,
 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
@@ -94,6 +96,14 @@ const ReportWaste = dynamic(() => import("@/components/ReportWaste"), {
 
 // Dynamically import the Recycler component with no SSR
 const Recycler = dynamic(() => import("@/components/Recycler"), {
+  ssr: false,
+});
+
+const Rewards = dynamic(() => import("@/components/rewards"), {
+  ssr: false,
+});
+
+const Profile = dynamic(() => import("@/components/my-profile"), {
   ssr: false,
 });
 
@@ -199,9 +209,9 @@ export default function Dashboard() {
           total_users: 1,
           city_name: "Sangamner",
           pending_reports: 4,
-          total_reports: 4,
+          total_reports: 9,
           engagement_score: 2,
-          total_score: 0.6,
+          total_score: 0.55,
           id: "67ef8b23a8fd49d35469a180",
           rank: 1,
         },
@@ -210,8 +220,8 @@ export default function Dashboard() {
           last_updated: "2025-04-04T07:42:54.158000",
           total_users: 2,
           city_name: "Pune",
-          pending_reports: 3,
-          total_reports: 3,
+          pending_reports: 11,
+          total_reports: 16,
           engagement_score: 1.5,
           authority_score: 0,
           citizen_score: 0.75,
@@ -622,13 +632,17 @@ export default function Dashboard() {
           )}
         </div>
       );
+    } else if (activePage === "rewards") {
+      return <Rewards />;
+    } else if (activePage === "my-profile") {
+      return <Profile />;
     } else {
       return (
         <>
           {/* Welcome Section */}
           <div className="mb-8">
             <h1 className="text-2xl md:text-3xl font-bold text-slate-800 mb-2">
-              Welcome back, John!
+              Welcome back, Shourya!
             </h1>
             <p className="text-slate-600">
               Track your waste management activities and recycling impact.
@@ -711,7 +725,7 @@ export default function Dashboard() {
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center text-green-500 mb-4">
                   <Award className="h-6 w-6" />
                 </div>
-                <h3 className="text-slate-800 font-bold text-2xl mb-1">245</h3>
+                <h3 className="text-slate-800 font-bold text-2xl mb-1">10</h3>
                 <p className="text-slate-600">Reward Points</p>
                 <div className="mt-3 text-green-500 text-sm font-medium flex items-center">
                   <span>55 points to next reward</span>
@@ -721,7 +735,7 @@ export default function Dashboard() {
           </div>
 
           {/* Nearby Smart Bins */}
-          <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-6 mb-8">
+          {/* <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-6 mb-8">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-800">
                 Nearby Smart Bins
@@ -844,7 +858,7 @@ export default function Dashboard() {
                 </tbody>
               </table>
             </div>
-          </div>
+          </div> */}
 
           {/* Recent Tickets */}
           <div className="bg-white/70 backdrop-blur-sm rounded-xl shadow-sm border border-white/20 p-6 mb-8">
@@ -981,6 +995,18 @@ export default function Dashboard() {
               <BarChart3 className="h-5 w-5" />
               <span>Dashboard</span>
             </button>
+            <button
+              onClick={() => handleNavigation("my-profile")}
+              className={`flex w-full items-center gap-3 px-4 py-3 ${
+                activePage === "my-profile"
+                  ? "text-green-500 font-medium"
+                  : "text-slate-700 hover:text-green-500 transition-colors"
+              }`}
+            >
+              <User className="h-5 w-5" />
+              <span>Profile</span>
+            </button>
+
             <Link href="/waste-deposits">
               <button className="flex w-full items-center gap-3 px-4 py-3 text-slate-700 hover:text-green-500 transition-colors">
                 <MapPin className="h-5 w-5" />
@@ -1011,9 +1037,21 @@ export default function Dashboard() {
               <Recycle className="h-5 w-5" />
               <span>Recycler</span>
             </button>
-
-            <button className="flex w-full items-center gap-3 px-4 py-3 text-slate-700 hover:text-green-500 transition-colors">
-              <Award className="h-5 w-5" />
+            {/* <Link href="/wallet">
+              <button className="flex w-full items-center gap-3 px-4 py-3 text-slate-700 hover:text-green-500 transition-colors">
+                <Award className="h-5 w-5" />
+                <span>Rewards</span>
+              </button>
+            </Link> */}
+            <button
+              onClick={() => handleNavigation("rewards")}
+              className={`flex w-full items-center gap-3 px-4 py-3 ${
+                activePage === "rewards"
+                  ? "text-green-500 font-medium"
+                  : "text-slate-700 hover:text-green-500 transition-colors"
+              }`}
+            >
+              <Gift className="h-5 w-5" />
               <span>Rewards</span>
             </button>
 
@@ -1096,7 +1134,7 @@ export default function Dashboard() {
                     <UserCircle className="h-6 w-6" />
                   </div>
                   <span className="text-slate-700 font-medium hidden md:inline-block">
-                    John Doe
+                    Shourya
                   </span>
                   <ChevronDown className="h-4 w-4 text-slate-500" />
                 </button>

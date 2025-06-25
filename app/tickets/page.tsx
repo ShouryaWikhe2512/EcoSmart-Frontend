@@ -121,6 +121,7 @@ export default function TicketsPage() {
 
         if (response.ok) {
           apiData = await response.json();
+          console.log(apiData);
         } else {
           // Log the error but don't throw an exception
           console.log(`API responded with status: ${response.status}`);
@@ -132,97 +133,11 @@ export default function TicketsPage() {
         apiError = "Network error";
       }
 
-      // Get localStorage reports regardless of API status
-      const localReports = JSON.parse(
-        localStorage.getItem("wasteReports") || "[]"
-      );
-
       if (apiData) {
-        // API call was successful, merge with local reports
-        if (localReports.length > 0) {
-          // Only add local reports if not filtering
-          if (!severity && !status && !location) {
-            // Create a set of existing IDs to avoid duplicates
-            const existingIds = new Set(
-              apiData.results.map((report: WasteReport) => report._id)
-            );
-
-            // Add local reports that aren't already in the API results
-            const uniqueLocalReports = localReports.filter(
-              (report: WasteReport) => !existingIds.has(report._id)
-            );
-
-            // Update the data with combined results
-            apiData.results = [...uniqueLocalReports, ...apiData.results];
-            apiData.count += uniqueLocalReports.length;
-          }
-        }
-
         setReports(apiData.results);
         setTotalCount(apiData.count);
       } else {
-        // API call failed, use localStorage or mock data
-        if (localReports.length > 0) {
-          // Filter the local reports based on the query parameters
-          let filteredReports = [...localReports];
-
-          if (severity) {
-            filteredReports = filteredReports.filter(
-              (report: WasteReport) =>
-                report.severity.toLowerCase() === severity.toLowerCase()
-            );
-          }
-
-          if (status) {
-            filteredReports = filteredReports.filter(
-              (report: WasteReport) =>
-                report.status.toLowerCase() === status.toLowerCase()
-            );
-          }
-
-          if (location) {
-            filteredReports = filteredReports.filter((report: WasteReport) =>
-              report.location.toLowerCase().includes(location.toLowerCase())
-            );
-          }
-
-          // Apply pagination
-          const paginatedReports = filteredReports.slice(skip, skip + limit);
-
-          setReports(paginatedReports);
-          setTotalCount(filteredReports.length);
-          setError(`Using locally saved reports. ${apiError}`);
-        } else {
-          // If no local reports, fallback to mock data
-          // Filter the mock data based on the query parameters
-          let filteredReports = [...MOCK_WASTE_REPORTS];
-
-          if (severity) {
-            filteredReports = filteredReports.filter(
-              (report) =>
-                report.severity.toLowerCase() === severity.toLowerCase()
-            );
-          }
-
-          if (status) {
-            filteredReports = filteredReports.filter(
-              (report) => report.status.toLowerCase() === status.toLowerCase()
-            );
-          }
-
-          if (location) {
-            filteredReports = filteredReports.filter((report: WasteReport) =>
-              report.location.toLowerCase().includes(location.toLowerCase())
-            );
-          }
-
-          // Apply pagination
-          const paginatedReports = filteredReports.slice(skip, skip + limit);
-
-          setReports(paginatedReports);
-          setTotalCount(filteredReports.length);
-          setError(`Using demo data. ${apiError}`);
-        }
+        throw new Error("error in seting report");
       }
     } catch (err) {
       setError("Failed to load waste reports. Please try again.");
@@ -288,34 +203,7 @@ export default function TicketsPage() {
 
   // Function to navigate to verify cleanup page
   const handleVerifyCleanup = (reportId: string) => {
-    // First, remove any 'report_' prefix from the ID if it exists
-    const cleanedId = reportId.replace(/^report_/, "");
-
-    console.log(`Original report ID: ${reportId}`);
-    console.log(`Cleaned report ID: ${cleanedId}`);
-
-    // Ensure reportId is a valid MongoDB ObjectId (24-character hex string)
-    const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(cleanedId);
-    console.log(
-      `Report ID is valid MongoDB ObjectId format: ${isValidObjectId}`
-    );
-
-    if (!isValidObjectId) {
-      alert(
-        "Invalid report ID format. The API requires a 24-character hex string (MongoDB ObjectId)."
-      );
-      return;
-    }
-
-    // Store in window object for a stateful approach without persisting in storage
-    if (typeof window !== "undefined") {
-      // @ts-ignore - we're adding a custom property
-      window.currentReportId = cleanedId;
-    }
-
-    // Navigate to verify cleanup page
-    console.log(`Navigating to verify cleanup page with report ID`);
-    router.push(`/verify-cleanup`);
+    router.push(`/verify-cleanup/${reportId}`);
   };
 
   const getSeverityColor = (severity: string) => {
@@ -622,16 +510,7 @@ export default function TicketsPage() {
 
                         <div className="flex justify-between items-center border-t border-[#e0e0e0] pt-4 mt-4">
                           <div className="text-gray-500 text-sm">
-                            ID:{" "}
-                            {report._id.startsWith("report_")
-                              ? report._id
-                              : `report_${report._id}`}
-                            {report._id.startsWith("report_") && (
-                              <span className="ml-2 text-xs text-red-500">
-                                (Internal format, will be converted when
-                                verifying)
-                              </span>
-                            )}
+                            ID: {report._id.substring(report._id.length - 8)}
                           </div>
                           <button
                             onClick={(e) => {
