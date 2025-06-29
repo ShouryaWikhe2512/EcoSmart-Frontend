@@ -33,13 +33,13 @@ export default function Home() {
     if (typeof window === "undefined") return;
 
     // Create a small delay to ensure the DOM is fully rendered
-    const timeout = setTimeout(() => {
+    const timeout = setTimeout(async () => {
       // Initialize Locomotive Scroll
-      const locomotiveInstance = setupLocomotive(mainRef.current);
+      const locomotiveInstance = await setupLocomotive(mainRef.current);
       setLocoScroll(locomotiveInstance);
 
       // Set up text highlighting animation for the tagline
-      createTextHighlightAnimation(taglineRef.current, mainRef.current);
+      await createTextHighlightAnimation(taglineRef.current, mainRef.current);
     }, 100);
 
     // Close sidebar on window resize (above md breakpoint)

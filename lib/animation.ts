@@ -1,18 +1,37 @@
-import gsap from 'gsap';
-import ScrollTrigger from 'gsap/ScrollTrigger';
-// @ts-ignore
-import LocomotiveScroll from 'locomotive-scroll';
+// Dynamic imports to prevent SSR issues
+let gsap: any;
+let ScrollTrigger: any;
+let LocomotiveScroll: any;
 
-// Register GSAP plugins
+// Only import on client side
 if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger);
+  Promise.all([
+    import('gsap'),
+    import('gsap/ScrollTrigger'),
+    // @ts-ignore
+    import('locomotive-scroll')
+  ]).then(([gsapModule, scrollTriggerModule, locomotiveModule]) => {
+    gsap = gsapModule.default;
+    ScrollTrigger = scrollTriggerModule.default;
+    LocomotiveScroll = locomotiveModule.default;
+    
+    if (gsap && ScrollTrigger) {
+      gsap.registerPlugin(ScrollTrigger);
+    }
+  });
 }
 
 /**
  * Sets up Locomotive Scroll with GSAP ScrollTrigger integration
  */
-export function setupLocomotive(containerRef: HTMLElement | null) {
+export async function setupLocomotive(containerRef: HTMLElement | null) {
   if (!containerRef || typeof window === 'undefined') return null;
+  
+  // Wait for libraries to be loaded
+  if (!LocomotiveScroll || !ScrollTrigger) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    if (!LocomotiveScroll || !ScrollTrigger) return null;
+  }
   
   // Initialize Locomotive Scroll
   const locoScroll = new LocomotiveScroll({
@@ -26,7 +45,7 @@ export function setupLocomotive(containerRef: HTMLElement | null) {
   
   // Tell ScrollTrigger to use these proxy methods for the containerRef element
   ScrollTrigger.scrollerProxy(containerRef, {
-    scrollTop(value) {
+    scrollTop(value: any) {
       return arguments.length 
         ? locoScroll.scrollTo(value, 0, 0) 
         : locoScroll.scroll.instance.scroll.y;
@@ -82,8 +101,14 @@ export function splitText(element: HTMLElement | null) {
 /**
  * Creates text highlight animation using GSAP
  */
-export function createTextHighlightAnimation(element: HTMLElement | null, containerRef: HTMLElement | null) {
+export async function createTextHighlightAnimation(element: HTMLElement | null, containerRef: HTMLElement | null) {
   if (!element || !containerRef || typeof window === 'undefined') return;
+  
+  // Wait for GSAP to be loaded
+  if (!gsap) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    if (!gsap) return;
+  }
   
   // First split the text
   splitText(element);
