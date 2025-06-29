@@ -1,6 +1,3 @@
-// Declare the module first, before importing
-declare module 'locomotive-scroll';
-
 import gsap from 'gsap';
 import ScrollTrigger from 'gsap/ScrollTrigger';
 // @ts-ignore
