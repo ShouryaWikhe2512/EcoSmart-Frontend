@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
@@ -16,7 +16,7 @@ interface AuthResponse {
   user: UserData;
 }
 
-export default function GoogleCallbackPage() {
+function GoogleCallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -90,5 +90,32 @@ export default function GoogleCallbackPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function GoogleCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-[#f8f8f8] to-[#e8f5e9] flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 text-center max-w-md w-full mx-4"
+          >
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="w-12 h-12 text-[#2e7d32] animate-spin" />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Loading...
+              </h2>
+              <p className="text-gray-600">Please wait...</p>
+            </div>
+          </motion.div>
+        </div>
+      }
+    >
+      <GoogleCallbackContent />
+    </Suspense>
   );
 }
