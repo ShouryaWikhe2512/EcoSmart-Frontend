@@ -43,6 +43,10 @@ interface WasteReport {
   timestamp: string;
   status: string;
   severity: string;
+  message?: string;
+  additional_data?: {
+    image?: string;
+  };
 }
 
 export default function VerifyCleanupPage({
@@ -212,7 +216,7 @@ export default function VerifyCleanupPage({
 
                   <div className="flex items-center gap-2 text-slate-700">
                     <MapPin className="w-5 h-5 text-slate-500" />
-                    <span>{report.location}</span>
+                    <span>{report.location.placeName}</span>
                   </div>
                 </div>
 
@@ -252,7 +256,7 @@ export default function VerifyCleanupPage({
                   Before Cleanup
                 </h2>
 
-                {report?.additional_data.image ? (
+                {report?.additional_data?.image ? (
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-slate-100 border border-slate-200">
                     <Image
                       src={report.image_url}
