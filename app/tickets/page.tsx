@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertCircle,
@@ -69,7 +69,7 @@ interface WasteReportsResponse {
 // Keep the MOCK_WASTE_REPORTS as fallback data in case the API fails
 const MOCK_WASTE_REPORTS: WasteReport[] = [];
 
-export default function TicketsPage() {
+function TicketsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -771,5 +771,29 @@ export default function TicketsPage() {
         </motion.div>
       </div>
     </div>
+  );
+}
+
+export default function TicketsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-b from-[#f8f8f8] to-[#e8f5e9] flex items-center justify-center">
+          <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 text-center max-w-md w-full mx-4">
+            <div className="flex flex-col items-center space-y-4">
+              <Loader2 className="w-12 h-12 text-[#2e7d32] animate-spin" />
+              <h2 className="text-xl font-semibold text-gray-800">
+                Loading Tickets
+              </h2>
+              <p className="text-gray-600">
+                Please wait while we load your waste reports...
+              </p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <TicketsContent />
+    </Suspense>
   );
 }
